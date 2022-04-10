@@ -53,6 +53,10 @@ import './index.css';
     handleClick(i){
       //squares を直接変更する代わりに、.slice() を呼んで配列のコピーを作成していること
       const squares = this.state.squares.slice();
+      // handleClick を書き換えて、ゲームの決着が既についている場合やクリックされたマス目が既に埋まっている場合に早期に return する
+      if (calculateWinner(squares) || squares[i]){
+        return;
+      }
       //xIsNext の値を反転させるようにします。
       squares[i] = this.state.xIsNext ? 'X' : 'O';
       this.setState({
@@ -74,8 +78,16 @@ import './index.css';
     }
   
     render() {
-      //どちらのプレーヤの手番なのかを表示を追加
-      const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      //render 関数内で calculateWinner(squares) を呼び出して、いずれかのプレーヤが勝利したかどうか判定します。
+      const winner = calculateWinner(this.state.squares);
+      let status;
+      if(winner){
+        status = 'winner: ' + winner;
+      }else{
+        //どちらのプレーヤの手番なのかを表示を追加
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      }
+      
   
       return (
         <div>
@@ -123,3 +135,23 @@ import './index.css';
     document.getElementById('root')
   );
   
+  //ゲーム勝者の判定
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
+  }
